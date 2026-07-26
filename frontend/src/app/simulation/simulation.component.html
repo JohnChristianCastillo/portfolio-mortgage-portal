@@ -1,50 +1,63 @@
 <section class="simulation">
-  <h2>Mortgage simulation</h2>
+  <h1>Welcome to your home journey!</h1>
+  <p class="text-muted">Simulate a mortgage to see what fits your budget.</p>
 
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <label>
+  <form class="card" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="field">
       Property value
       <input type="number" formControlName="property_value" />
     </label>
 
-    <label>
+    <label class="field">
       Down payment
       <input type="number" formControlName="down_payment" />
     </label>
 
-    <label>
+    <label class="field">
       Monthly income
       <input type="number" formControlName="monthly_income" />
     </label>
 
-    <label>
+    <label class="field">
       Monthly expenses
       <input type="number" formControlName="monthly_expenses" />
     </label>
 
-    <label>
+    <label class="field">
       Term (years)
       <input type="number" formControlName="term_years" />
     </label>
 
-    <button type="submit" [disabled]="submitting()">
+    <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
       {{ submitting() ? 'Calculating...' : 'Simulate' }}
     </button>
   </form>
 
   @if (errorMessage()) {
-    <p class="error">{{ errorMessage() }}</p>
+    <p class="text-error">{{ errorMessage() }}</p>
   }
 
   @if (result(); as r) {
-    <div class="result">
-      <p>Loan amount: {{ r.loan_amount | number: '1.0-2' }}</p>
-      <p>Monthly payment: {{ r.monthly_payment | number: '1.0-2' }}</p>
-      <p>Interest rate: {{ r.interest_rate * 100 | number: '1.2-2' }}%</p>
-      <p>Total interest: {{ r.total_interest | number: '1.0-2' }}</p>
-      <p>Total repayment: {{ r.total_repayment | number: '1.0-2' }}</p>
+    <div class="card result">
+      <h3>Your result</h3>
+      <dl>
+        <dt>Loan amount</dt>
+        <dd>{{ r.loan_amount | number: '1.0-2' }}</dd>
+        <dt>Monthly payment</dt>
+        <dd>{{ r.monthly_payment | number: '1.0-2' }}</dd>
+        <dt>Interest rate</dt>
+        <dd>{{ r.interest_rate * 100 | number: '1.2-2' }}%</dd>
+        <dt>Total interest</dt>
+        <dd>{{ r.total_interest | number: '1.0-2' }}</dd>
+        <dt>Total repayment</dt>
+        <dd>{{ r.total_repayment | number: '1.0-2' }}</dd>
+      </dl>
       <p class="affordability" [class.ok]="r.affordable" [class.warn]="!r.affordable">
-        {{ r.affordable ? 'This looks affordable based on your income and expenses.' : 'This may not be affordable based on your income and expenses.' }}
+        {{
+          r.affordable
+            ? 'This looks affordable based on your income and expenses.'
+            : 'This may not be affordable based on your income and expenses.'
+        }}
       </p>
     </div>
   }

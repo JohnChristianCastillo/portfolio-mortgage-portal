@@ -1,20 +1,25 @@
-<main class="shell">
-  <h1>{{ title() }}</h1>
-  <p class="backend-status" [class.ok]="backendStatus() === 'ok'" [class.error]="backendStatus() === 'unreachable'">
-    Backend: {{ backendStatus() }}
-  </p>
+<header class="topbar">
+  <a routerLink="/" class="brand">{{ title() }}</a>
 
   <nav class="nav">
     <a routerLink="/">Simulate</a>
     <a routerLink="/apply">Apply</a>
     @if (auth.currentUser(); as user) {
       <span class="current-user">{{ user.email }}</span>
-      <button type="button" (click)="logout()">Log out</button>
+      <button type="button" class="btn btn-outline btn-sm" (click)="logout()">Log out</button>
     } @else {
       <a routerLink="/signup">Sign up</a>
       <a routerLink="/login">Log in</a>
     }
+    <span
+      class="status-dot"
+      [class.ok]="backendStatus() === 'ok'"
+      [class.error]="backendStatus() === 'unreachable'"
+      [title]="'Backend: ' + backendStatus()"
+    ></span>
   </nav>
+</header>
 
+<main class="shell">
   <router-outlet />
 </main>
