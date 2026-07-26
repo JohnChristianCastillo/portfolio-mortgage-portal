@@ -1,0 +1,24 @@
+# Local-only planning docs, never pushed
+_local/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.db
+backend/data/
+
+# Node / Angular
+node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
