@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { SimulateResult, SimulationService } from './simulation.service';
+import { LastSimulationService } from './last-simulation.service';
 
 @Component({
   selector: 'app-simulation',
@@ -15,6 +16,7 @@ import { SimulateResult, SimulationService } from './simulation.service';
 export class SimulationComponent {
   private readonly fb = inject(FormBuilder);
   private readonly simulation = inject(SimulationService);
+  private readonly lastSimulation = inject(LastSimulationService);
 
   readonly result = signal<SimulateResult | null>(null);
   readonly errorMessage = signal<string | null>(null);
@@ -39,25 +41,25 @@ export class SimulationComponent {
     this.result.set(null);
 
     const value = this.form.getRawValue();
-    this.simulation
-      .simulate({
-        property_value: value.property_value!,
-        down_payment: value.down_payment!,
-        monthly_income: value.monthly_income!,
-        monthly_expenses: value.monthly_expenses!,
-        term_years: value.term_years!,
-      })
-      .subscribe({
-        next: (result) => {
-          this.result.set(result);
-          this.submitting.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.errorMessage.set(
-            err.error?.error?.message ?? 'Simulation failed, please check your inputs.',
-          );
-          this.submitting.set(false);
-        },
-      });
+    const request = {
+      property_value: value.property_value!,
+      down_payment: value.down_payment!,
+      monthly_income: value.monthly_income!,
+      monthly_expenses: value.monthly_expenses!,
+      term_years: value.term_years!,
+    };
+    this.simulation.simulate(request).subscribe({
+      next: (result) => {
+        this.result.set(result);
+        this.lastSimulation.remember(request, result);
+        this.submitting.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage.set(
+          err.error?.error?.message ?? 'Simulation failed, please check your inputs.',
+        );
+        this.submitting.set(false);
+      },
+    });
   }
 }

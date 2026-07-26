@@ -6,6 +6,7 @@ export interface HealthStatus {
   status: string;
 }
 
+/** Thin wrapper around GET /api/health, used to show backend reachability in the shell. */
 @Injectable({ providedIn: 'root' })
 export class HealthService {
   constructor(private readonly http: HttpClient) {}

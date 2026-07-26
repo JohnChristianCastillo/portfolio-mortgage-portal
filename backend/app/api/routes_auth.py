@@ -1,3 +1,10 @@
+"""Borrower account endpoints: signup, login, and the current-user lookup.
+
+This is the borrower's own account system, separate from the gateway's
+admin/invited/anonymous admission tiers - the gateway decides who can reach
+this app at all, these routes decide which borrower a session belongs to.
+"""
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session

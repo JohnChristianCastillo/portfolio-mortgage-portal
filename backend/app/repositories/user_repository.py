@@ -4,6 +4,8 @@ from app.domain.models import User
 
 
 class UserRepository:
+    """Isolates User persistence so AuthService never touches the DB session directly."""
+
     def __init__(self, db: Session):
         self.db = db
 

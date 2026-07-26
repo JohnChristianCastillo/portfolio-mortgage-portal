@@ -1,3 +1,8 @@
+"""SQLAlchemy ORM models for the three persisted entities: User, Application,
+and Document. One borrower has many applications; one application has many
+uploaded documents.
+"""
+
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, String

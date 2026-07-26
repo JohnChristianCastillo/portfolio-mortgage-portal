@@ -1,3 +1,7 @@
+"""SQLite engine/session setup, a get_db FastAPI dependency, and init_db()
+which creates tables on startup (see main.py's lifespan handler).
+"""
+
 from pathlib import Path
 
 from sqlalchemy import create_engine

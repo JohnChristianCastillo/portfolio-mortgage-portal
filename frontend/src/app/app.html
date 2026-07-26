@@ -6,6 +6,7 @@
 
   <nav class="nav">
     <a routerLink="/">Simulate</a>
+    <a routerLink="/apply">Apply</a>
     @if (auth.currentUser(); as user) {
       <span class="current-user">{{ user.email }}</span>
       <button type="button" (click)="logout()">Log out</button>

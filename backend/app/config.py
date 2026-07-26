@@ -1,3 +1,9 @@
+"""App settings, overridable via MORTGAGE_-prefixed env vars or a .env file.
+
+Mirrors the pattern already used by portfolio-gateway's own Settings class,
+so the two apps stay easy to reason about side by side.
+"""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

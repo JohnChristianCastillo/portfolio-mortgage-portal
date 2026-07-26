@@ -1,0 +1,91 @@
+@if (submittedApplication(); as app) {
+  <section class="submitted">
+    <h2>Application submitted</h2>
+    <p>Application #{{ app.id }} is now <strong>{{ app.status }}</strong>.</p>
+    <p>Loan amount: {{ app.loan_amount | number: '1.0-2' }}</p>
+  </section>
+} @else {
+  <section class="application">
+    <h2>Mortgage application</h2>
+
+    <nav class="steps">
+      @for (step of steps; track step.key; let i = $index) {
+        <span [class.active]="currentStep() === step.key" [class.done]="i < stepIndex()">
+          {{ step.label }}
+        </span>
+      }
+    </nav>
+
+    <form [formGroup]="form">
+      @switch (currentStep()) {
+        @case ('about') {
+          <div class="step-content">
+            <label>
+              Property value
+              <input type="number" formControlName="property_value" />
+            </label>
+            <label>
+              Term (years)
+              <input type="number" formControlName="term_years" />
+            </label>
+          </div>
+        }
+        @case ('personal') {
+          <div class="step-content">
+            <label>
+              Employment status
+              <select formControlName="employment_status">
+                <option value="employee">Employee</option>
+                <option value="self_employed">Self-employed</option>
+                <option value="unemployed">Unemployed</option>
+              </select>
+            </label>
+          </div>
+        }
+        @case ('income') {
+          <div class="step-content">
+            <label>
+              Monthly income
+              <input type="number" formControlName="monthly_income" />
+            </label>
+          </div>
+        }
+        @case ('expenses') {
+          <div class="step-content">
+            <label>
+              Monthly expenses
+              <input type="number" formControlName="monthly_expenses" />
+            </label>
+          </div>
+        }
+        @case ('submit') {
+          <div class="step-content">
+            <p>Review your application, then submit it.</p>
+            <ul class="recap">
+              <li>Property value: {{ form.value.property_value | number: '1.0-2' }}</li>
+              <li>Term: {{ form.value.term_years }} years</li>
+              <li>Employment status: {{ form.value.employment_status }}</li>
+              <li>Monthly income: {{ form.value.monthly_income | number: '1.0-2' }}</li>
+              <li>Monthly expenses: {{ form.value.monthly_expenses | number: '1.0-2' }}</li>
+            </ul>
+
+            @if (errorMessage()) {
+              <p class="error">{{ errorMessage() }}</p>
+            }
+
+            <button type="button" [disabled]="submitting()" (click)="submitApplication()">
+              {{ submitting() ? 'Submitting...' : 'Submit application' }}
+            </button>
+          </div>
+        }
+      }
+    </form>
+
+    <div class="step-nav">
+      <button type="button" (click)="back()" [disabled]="stepIndex() === 0">Back</button>
+      @if (currentStep() !== 'submit') {
+        <button type="button" (click)="next()">Next</button>
+      }
+    </div>
+  </section>
+}

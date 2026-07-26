@@ -14,6 +14,12 @@ export interface CurrentUser {
   email: string;
 }
 
+/**
+ * Holds the borrower's JWT and profile in memory, synced with localStorage
+ * via token-storage.ts. authInterceptor reads the token independently for
+ * outgoing requests; this service is what components read to render login
+ * state and to trigger signup/login/logout.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
