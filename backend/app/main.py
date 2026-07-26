@@ -4,7 +4,7 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import routes_health
+from app.api import routes_health, routes_simulate
 from app.config import settings
 from app.core.errors import register_error_handlers
 
@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
 
     app.include_router(routes_health.router, prefix="/api")
+    app.include_router(routes_simulate.router, prefix="/api")
 
     return app
 

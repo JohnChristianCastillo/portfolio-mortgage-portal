@@ -1,0 +1,51 @@
+<section class="simulation">
+  <h2>Mortgage simulation</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Property value
+      <input type="number" formControlName="property_value" />
+    </label>
+
+    <label>
+      Down payment
+      <input type="number" formControlName="down_payment" />
+    </label>
+
+    <label>
+      Monthly income
+      <input type="number" formControlName="monthly_income" />
+    </label>
+
+    <label>
+      Monthly expenses
+      <input type="number" formControlName="monthly_expenses" />
+    </label>
+
+    <label>
+      Term (years)
+      <input type="number" formControlName="term_years" />
+    </label>
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Calculating...' : 'Simulate' }}
+    </button>
+  </form>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (result(); as r) {
+    <div class="result">
+      <p>Loan amount: {{ r.loan_amount | number: '1.0-2' }}</p>
+      <p>Monthly payment: {{ r.monthly_payment | number: '1.0-2' }}</p>
+      <p>Interest rate: {{ r.interest_rate * 100 | number: '1.2-2' }}%</p>
+      <p>Total interest: {{ r.total_interest | number: '1.0-2' }}</p>
+      <p>Total repayment: {{ r.total_repayment | number: '1.0-2' }}</p>
+      <p class="affordability" [class.ok]="r.affordable" [class.warn]="!r.affordable">
+        {{ r.affordable ? 'This looks affordable based on your income and expenses.' : 'This may not be affordable based on your income and expenses.' }}
+      </p>
+    </div>
+  }
+</section>
