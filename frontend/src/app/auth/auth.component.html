@@ -1,0 +1,50 @@
+<section class="auth">
+  <h2>{{ mode() === 'signup' ? 'Sign up' : 'Log in' }}</h2>
+
+  <div class="mode-toggle">
+    <button type="button" (click)="setMode('signup')" [class.active]="mode() === 'signup'">
+      Sign up
+    </button>
+    <button type="button" (click)="setMode('login')" [class.active]="mode() === 'login'">
+      Log in
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Email
+      <input type="email" formControlName="email" />
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <span class="field-error">
+          @if (form.controls.email.hasError('required')) {
+            Email is required.
+          } @else if (form.controls.email.hasError('email')) {
+            Enter a valid email address.
+          }
+        </span>
+      }
+    </label>
+
+    <label>
+      Password
+      <input type="password" formControlName="password" />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <span class="field-error">
+          @if (form.controls.password.hasError('required')) {
+            Password is required.
+          } @else if (form.controls.password.hasError('minlength')) {
+            Password must be at least 8 characters long.
+          }
+        </span>
+      }
+    </label>
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Please wait...' : mode() === 'signup' ? 'Create account' : 'Log in' }}
+    </button>
+  </form>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+</section>

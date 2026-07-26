@@ -17,3 +17,27 @@
 .backend-status.error {
   color: #b91c1c;
 }
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #1a2b4c;
+}
+
+.nav .current-user {
+  margin-left: auto;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.nav button {
+  cursor: pointer;
+}

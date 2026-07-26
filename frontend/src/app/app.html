@@ -3,5 +3,17 @@
   <p class="backend-status" [class.ok]="backendStatus() === 'ok'" [class.error]="backendStatus() === 'unreachable'">
     Backend: {{ backendStatus() }}
   </p>
+
+  <nav class="nav">
+    <a routerLink="/">Simulate</a>
+    @if (auth.currentUser(); as user) {
+      <span class="current-user">{{ user.email }}</span>
+      <button type="button" (click)="logout()">Log out</button>
+    } @else {
+      <a routerLink="/signup">Sign up</a>
+      <a routerLink="/login">Log in</a>
+    }
+  </nav>
+
   <router-outlet />
 </main>
