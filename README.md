@@ -22,7 +22,3 @@ TODO.
 ## Trade-offs and what was cut
 
 TODO.
-
-## AI usage note
-
-TODO.
