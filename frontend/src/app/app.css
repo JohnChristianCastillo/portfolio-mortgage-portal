@@ -1,0 +1,19 @@
+.shell {
+  max-width: 640px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.backend-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.backend-status.ok {
+  color: #1a7f37;
+}
+
+.backend-status.error {
+  color: #b91c1c;
+}

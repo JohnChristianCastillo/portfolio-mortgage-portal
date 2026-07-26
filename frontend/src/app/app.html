@@ -1,0 +1,7 @@
+<main class="shell">
+  <h1>{{ title() }}</h1>
+  <p class="backend-status" [class.ok]="backendStatus() === 'ok'" [class.error]="backendStatus() === 'unreachable'">
+    Backend: {{ backendStatus() }}
+  </p>
+  <router-outlet />
+</main>
