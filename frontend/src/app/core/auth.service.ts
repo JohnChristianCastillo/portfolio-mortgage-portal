@@ -34,14 +34,15 @@ export class AuthService {
   }
 
   signup(email: string, password: string): Observable<TokenResponse> {
+    // Relative, not leading-slash - see simulation.service.ts's note.
     return this.http
-      .post<TokenResponse>('/api/auth/signup', { email, password })
+      .post<TokenResponse>('api/auth/signup', { email, password })
       .pipe(tap((res) => this.onTokenReceived(res.access_token)));
   }
 
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/login', { email, password })
+      .post<TokenResponse>('api/auth/login', { email, password })
       .pipe(tap((res) => this.onTokenReceived(res.access_token)));
   }
 
@@ -58,7 +59,7 @@ export class AuthService {
   }
 
   private refreshCurrentUser(): void {
-    this.http.get<CurrentUser>('/api/auth/me').subscribe({
+    this.http.get<CurrentUser>('api/auth/me').subscribe({
       next: (user) => this.currentUser.set(user),
       error: () => this.logout(),
     });

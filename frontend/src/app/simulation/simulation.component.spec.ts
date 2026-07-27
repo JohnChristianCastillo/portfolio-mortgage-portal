@@ -26,7 +26,7 @@ describe('SimulationComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/simulate');
+    const req = httpMock.expectOne('api/simulate');
     expect(req.request.method).toBe('POST');
     req.flush({
       loan_amount: 230000,
@@ -49,7 +49,7 @@ describe('SimulationComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/simulate');
+    const req = httpMock.expectOne('api/simulate');
     req.flush(
       { error: { code: 'validation_error', message: 'down payment cannot exceed the property value' } },
       { status: 422, statusText: 'Unprocessable Content' },

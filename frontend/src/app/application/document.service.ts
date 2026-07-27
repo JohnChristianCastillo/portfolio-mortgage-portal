@@ -19,13 +19,14 @@ export class DocumentService {
     const formData = new FormData();
     formData.append('document_type', documentType);
     formData.append('file', file);
+    // Relative, not leading-slash - see simulation.service.ts's note.
     return this.http.post<UploadedDocument>(
-      `/api/applications/${applicationId}/documents`,
+      `api/applications/${applicationId}/documents`,
       formData,
     );
   }
 
   list(applicationId: number): Observable<UploadedDocument[]> {
-    return this.http.get<UploadedDocument[]>(`/api/applications/${applicationId}/documents`);
+    return this.http.get<UploadedDocument[]>(`api/applications/${applicationId}/documents`);
   }
 }

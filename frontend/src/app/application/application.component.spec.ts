@@ -42,7 +42,7 @@ describe('ApplicationComponent', () => {
 
     fixture.componentInstance.submitApplication();
 
-    const createReq = httpMock.expectOne('/api/applications');
+    const createReq = httpMock.expectOne('api/applications');
     expect(createReq.request.method).toBe('POST');
     createReq.flush({
       id: 42,
@@ -56,7 +56,7 @@ describe('ApplicationComponent', () => {
       employment_status: 'employee',
     });
 
-    const submitReq = httpMock.expectOne('/api/applications/42/submit');
+    const submitReq = httpMock.expectOne('api/applications/42/submit');
     expect(submitReq.request.method).toBe('POST');
     submitReq.flush({
       id: 42,
@@ -79,7 +79,7 @@ describe('ApplicationComponent', () => {
 
     fixture.componentInstance.submitApplication();
 
-    const createReq = httpMock.expectOne('/api/applications');
+    const createReq = httpMock.expectOne('api/applications');
     createReq.flush(
       { error: { code: 'unauthorized', message: 'missing or malformed Authorization header' } },
       { status: 401, statusText: 'Unauthorized' },
@@ -90,7 +90,7 @@ describe('ApplicationComponent', () => {
 
   function reachSubmittedState(fixture: ReturnType<typeof TestBed.createComponent<ApplicationComponent>>) {
     fixture.componentInstance.submitApplication();
-    const createReq = httpMock.expectOne('/api/applications');
+    const createReq = httpMock.expectOne('api/applications');
     createReq.flush({
       id: 42,
       status: 'draft',
@@ -102,7 +102,7 @@ describe('ApplicationComponent', () => {
       interest_rate: 0,
       employment_status: 'employee',
     });
-    const submitReq = httpMock.expectOne('/api/applications/42/submit');
+    const submitReq = httpMock.expectOne('api/applications/42/submit');
     submitReq.flush({
       id: 42,
       status: 'submitted',
@@ -125,7 +125,7 @@ describe('ApplicationComponent', () => {
     fixture.componentInstance.selectedFile.set(file);
     fixture.componentInstance.uploadDocument();
 
-    const uploadReq = httpMock.expectOne('/api/applications/42/documents');
+    const uploadReq = httpMock.expectOne('api/applications/42/documents');
     expect(uploadReq.request.method).toBe('POST');
     uploadReq.flush({
       id: 1,
@@ -148,7 +148,7 @@ describe('ApplicationComponent', () => {
     fixture.componentInstance.selectedFile.set(file);
     fixture.componentInstance.uploadDocument();
 
-    const uploadReq = httpMock.expectOne('/api/applications/42/documents');
+    const uploadReq = httpMock.expectOne('api/applications/42/documents');
     uploadReq.flush(
       { error: { code: 'validation_error', message: 'unsupported file type: application/x-msdownload' } },
       { status: 422, statusText: 'Unprocessable Content' },

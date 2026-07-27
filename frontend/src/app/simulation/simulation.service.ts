@@ -26,6 +26,10 @@ export class SimulationService {
   constructor(private readonly http: HttpClient) {}
 
   simulate(request: SimulateRequest): Observable<SimulateResult> {
-    return this.http.post<SimulateResult>('/api/simulate', request);
+    // Deliberately relative, not leading-slash: a leading "/api/..." resolves
+    // against the origin and skips <base href="/mortgage/"> entirely, which
+    // sent this to the wrong place once behind the gateway (a real production
+    // bug). A plain relative reference resolves against the full base href.
+    return this.http.post<SimulateResult>('api/simulate', request);
   }
 }

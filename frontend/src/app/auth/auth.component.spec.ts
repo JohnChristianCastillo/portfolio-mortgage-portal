@@ -53,10 +53,10 @@ describe('AuthComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/auth/signup');
+    const req = httpMock.expectOne('api/auth/signup');
     req.flush({ access_token: 'token123', token_type: 'bearer' });
 
-    const meReq = httpMock.expectOne('/api/auth/me');
+    const meReq = httpMock.expectOne('api/auth/me');
     meReq.flush({ id: 1, email: 'a@example.com' });
 
     expect(fixture.componentInstance.errorMessage()).toBeNull();
@@ -69,9 +69,9 @@ describe('AuthComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/auth/signup');
+    const req = httpMock.expectOne('api/auth/signup');
     req.flush({ access_token: 'token123', token_type: 'bearer' });
-    const meReq = httpMock.expectOne('/api/auth/me');
+    const meReq = httpMock.expectOne('api/auth/me');
     meReq.flush({ id: 1, email: 'a@example.com' });
 
     expect(navigateSpy).toHaveBeenCalledWith('/apply');
@@ -84,9 +84,9 @@ describe('AuthComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/auth/signup');
+    const req = httpMock.expectOne('api/auth/signup');
     req.flush({ access_token: 'token123', token_type: 'bearer' });
-    const meReq = httpMock.expectOne('/api/auth/me');
+    const meReq = httpMock.expectOne('api/auth/me');
     meReq.flush({ id: 1, email: 'a@example.com' });
 
     expect(navigateSpy).toHaveBeenCalledWith('/');
@@ -99,7 +99,7 @@ describe('AuthComponent', () => {
     fixture.componentInstance.submit();
     fixture.detectChanges();
 
-    httpMock.expectNone('/api/auth/signup');
+    httpMock.expectNone('api/auth/signup');
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Enter a valid email address');
@@ -112,7 +112,7 @@ describe('AuthComponent', () => {
 
     fixture.componentInstance.submit();
 
-    const req = httpMock.expectOne('/api/auth/login');
+    const req = httpMock.expectOne('api/auth/login');
     req.flush(
       { error: { code: 'unauthorized', message: 'invalid email or password' } },
       { status: 401, statusText: 'Unauthorized' },

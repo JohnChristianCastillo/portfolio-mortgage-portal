@@ -36,15 +36,14 @@ export class GatewayStatusService {
   }
 
   private refresh(): void {
-    // Built as an absolute origin+path URL, deliberately NOT a plain relative
-    // "/status": this page's <base href="/mortgage/"> gets prepended to
-    // relative paths (confirmed against the real deployment - it is not just
-    // asset tags, HttpClient calls get it too), which would send this through
-    // the /mortgage/* app proxy to OUR OWN backend instead of the gateway's
-    // real top-level /status route. GatewayService's wsUrl() sidesteps the
-    // same trap the same way.
-    const url = `${window.location.protocol}//${window.location.host}/status`;
-    this.http.get<GatewayStatus>(url).subscribe({
+    // Deliberately a LEADING-slash path here, the opposite of this app's own
+    // api/* calls: a reference starting with "/" resolves against the origin
+    // and skips <base href="/mortgage/"> entirely, which is exactly what is
+    // wanted for the gateway's own top-level /status route (not proxied
+    // per-app). A relative "status" (no leading slash) would instead resolve
+    // under /mortgage/ and get misrouted through the app proxy to this app's
+    // own backend, which has no such route.
+    this.http.get<GatewayStatus>('/status').subscribe({
       next: (status) => this.status.set(status),
       error: () => {
         // Transient - the next poll will retry. Not worth surfacing to the user.

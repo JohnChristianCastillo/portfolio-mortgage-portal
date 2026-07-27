@@ -20,19 +20,19 @@ describe('sessionInterceptor', () => {
   }
 
   it('attaches X-Session-Id to /api requests when a session id is present', () => {
-    const req = new HttpRequest('GET', '/api/simulate');
+    const req = new HttpRequest('GET', 'api/simulate');
     const forwarded = run(req, 'abc123');
     expect(forwarded?.headers.get('X-Session-Id')).toBe('abc123');
   });
 
   it('does not attach the header when there is no session id', () => {
-    const req = new HttpRequest('GET', '/api/simulate');
+    const req = new HttpRequest('GET', 'api/simulate');
     const forwarded = run(req, null);
     expect(forwarded?.headers.has('X-Session-Id')).toBe(false);
   });
 
   it('does not attach the header to non-/api requests', () => {
-    const req = new HttpRequest('GET', '/health');
+    const req = new HttpRequest('GET', 'health');
     const forwarded = run(req, 'abc123');
     expect(forwarded?.headers.has('X-Session-Id')).toBe(false);
   });

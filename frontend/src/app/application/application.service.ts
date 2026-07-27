@@ -23,10 +23,11 @@ export class ApplicationService {
   private readonly http = inject(HttpClient);
 
   create(fields: Partial<ApplicationFields>): Observable<Application> {
-    return this.http.post<Application>('/api/applications', fields);
+    // Relative, not leading-slash - see simulation.service.ts's note.
+    return this.http.post<Application>('api/applications', fields);
   }
 
   submit(id: number): Observable<Application> {
-    return this.http.post<Application>(`/api/applications/${id}/submit`, {});
+    return this.http.post<Application>(`api/applications/${id}/submit`, {});
   }
 }
