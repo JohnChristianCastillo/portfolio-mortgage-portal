@@ -12,7 +12,11 @@ client = TestClient(app)
 
 
 def _application_headers(email: str) -> tuple[dict[str, str], int]:
-    signup = client.post("/api/auth/signup", json={"email": email, "password": "supersecret"})
+    signup = client.post(
+        "/api/auth/signup",
+        json={"email": email, "password": "supersecret"},
+        headers={"X-Session-Tier": "invited"},
+    )
     headers = {"Authorization": f"Bearer {signup.json()['access_token']}"}
     application = client.post("/api/applications", json={}, headers=headers).json()
     return headers, application["id"]

@@ -11,8 +11,18 @@ client = TestClient(app)
 
 
 def _auth_headers(email: str) -> dict[str, str]:
-    """Signs up a fresh borrower and returns an Authorization header for them."""
-    response = client.post("/api/auth/signup", json={"email": email, "password": "supersecret"})
+    """Signs up a fresh borrower and returns an Authorization header for them.
+
+    Signup itself requires an invited/admin tier (see test_auth.py); these
+    tests are about application ownership, not the signup gate, so they
+    always sign up as "invited" and only that response's own bearer token is
+    used for the actual calls under test.
+    """
+    response = client.post(
+        "/api/auth/signup",
+        json={"email": email, "password": "supersecret"},
+        headers={"X-Session-Tier": "invited"},
+    )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 

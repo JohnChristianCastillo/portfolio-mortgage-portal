@@ -28,6 +28,15 @@ class ConflictError(DomainError):
     code = "conflict"
 
 
+class ForbiddenError(DomainError):
+    """The caller is identified (e.g. by the gateway's verified tier header)
+    but not permitted - distinct from UnauthorizedError, which means no
+    identity was presented at all."""
+
+    status_code = status.HTTP_403_FORBIDDEN
+    code = "forbidden"
+
+
 class ValidationError(DomainError):
     status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
     code = "validation_error"

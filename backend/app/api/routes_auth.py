@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_invited_or_admin
 from app.db import get_db
 from app.domain.models import User
 from app.services.auth_service import AuthService
@@ -38,7 +38,11 @@ class UserResponse(BaseModel):
 
 
 @router.post("/signup", response_model=TokenResponse)
-def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> TokenResponse:
+def signup(
+    payload: SignupRequest,
+    db: Session = Depends(get_db),
+    _tier: str = Depends(require_invited_or_admin),
+) -> TokenResponse:
     service = AuthService(db)
     user = service.signup(payload.email, payload.password)
     return TokenResponse(access_token=service.create_access_token(user))

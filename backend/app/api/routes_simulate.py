@@ -1,7 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
+from app.api.deps import client_ip, session_tier
+from app.db import get_db
 from app.domain.simulation import MortgageSimulator, SimulationInput
+from app.repositories.banned_ip_repository import BannedIpRepository
+from app.services.abuse_guard_service import AbuseGuardService
 
 router = APIRouter(tags=["simulation"])
 _simulator = MortgageSimulator()
@@ -27,7 +32,14 @@ class SimulateResponse(BaseModel):
 
 
 @router.post("/simulate", response_model=SimulateResponse)
-def simulate(payload: SimulateRequest) -> SimulateResponse:
+def simulate(
+    payload: SimulateRequest,
+    ip: str = Depends(client_ip),
+    tier: str | None = Depends(session_tier),
+    db: Session = Depends(get_db),
+) -> SimulateResponse:
+    AbuseGuardService(BannedIpRepository(db)).check(ip, tier)
+
     result = _simulator.simulate(
         SimulationInput(
             property_value=payload.property_value,

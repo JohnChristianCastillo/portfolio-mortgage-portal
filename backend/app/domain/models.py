@@ -67,3 +67,16 @@ class Document(Base):
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     application: Mapped["Application"] = relationship(back_populates="documents")
+
+
+class BannedIp(Base):
+    """An IP auto-banned for bursting the simulation endpoint (anonymous tier
+    only - see AbuseGuardService). Kept until an admin manually unbans it.
+    """
+
+    __tablename__ = "banned_ips"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ip: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    reason: Mapped[str] = mapped_column(String(255))
+    banned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

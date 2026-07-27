@@ -21,5 +21,9 @@
 </header>
 
 <main class="shell">
-  <router-outlet />
+  @if (gateway.state() === 'admitted') {
+    <router-outlet />
+  } @else {
+    <app-gate />
+  }
 </main>

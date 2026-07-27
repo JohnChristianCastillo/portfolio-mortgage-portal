@@ -28,6 +28,13 @@ class Settings(BaseSettings):
 
     max_document_size_bytes: int = 10 * 1024 * 1024
 
+    # Auto-ban a burst of simulate calls from one IP (anonymous tier only -
+    # invited/admin are exempt). Not a total quota, a spam-burst detector: an
+    # IP making more than this many calls within the window gets banned until
+    # an admin manually unbans it via the admin endpoints.
+    simulate_abuse_window_seconds: int = 10
+    simulate_abuse_max_requests: int = 8
+
     cors_allow_origins: str = (
         "https://johnchristiancastillo.com,https://app.johnchristiancastillo.com"
     )

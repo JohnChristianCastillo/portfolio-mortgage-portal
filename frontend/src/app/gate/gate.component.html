@@ -1,0 +1,12 @@
+<div class="gate">
+  <div class="gate-card">
+    @if (content().spin) {
+      <div class="spinner"></div>
+    }
+    <h2>{{ content().title }}</h2>
+    <p class="text-muted">{{ content().detail }}</p>
+    @if (gateway.state() === 'expired') {
+      <button type="button" class="btn btn-primary" (click)="rejoin()">Rejoin</button>
+    }
+  </div>
+</div>

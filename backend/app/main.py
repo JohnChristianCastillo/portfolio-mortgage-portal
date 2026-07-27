@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from app.api import (
+    routes_admin,
     routes_applications,
     routes_auth,
     routes_documents,
@@ -49,11 +50,15 @@ def create_app() -> FastAPI:
 
     register_error_handlers(app)
 
-    app.include_router(routes_health.router, prefix="/api")
+    # Ungated on purpose, unlike everything below: the gateway only requires an
+    # admitted session for /api/* paths, and a container/gateway health check
+    # must work before any session exists. Matches the other apps in this stack.
+    app.include_router(routes_health.router)
     app.include_router(routes_simulate.router, prefix="/api")
     app.include_router(routes_auth.router, prefix="/api")
     app.include_router(routes_applications.router, prefix="/api")
     app.include_router(routes_documents.router, prefix="/api")
+    app.include_router(routes_admin.router, prefix="/api")
 
     _mount_spa(app)
 
