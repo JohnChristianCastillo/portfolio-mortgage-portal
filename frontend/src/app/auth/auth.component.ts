@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../core/auth.service';
+import { extractErrorMessage } from '../core/http-error';
 
 type AuthMode = 'signup' | 'login';
 
@@ -56,9 +57,7 @@ export class AuthComponent {
         this.router.navigateByUrl(returnUrl);
       },
       error: (err: HttpErrorResponse) => {
-        this.errorMessage.set(
-          err.error?.error?.message ?? 'Something went wrong, please try again.',
-        );
+        this.errorMessage.set(extractErrorMessage(err, 'Something went wrong, please try again.'));
         this.submitting.set(false);
       },
     });

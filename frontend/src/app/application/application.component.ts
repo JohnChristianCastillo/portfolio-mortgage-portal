@@ -7,6 +7,7 @@ import { switchMap } from 'rxjs';
 import { LastSimulationService } from '../simulation/last-simulation.service';
 import { Application, ApplicationService } from './application.service';
 import { DocumentService, UploadedDocument } from './document.service';
+import { extractErrorMessage } from '../core/http-error';
 
 export const DOCUMENT_TYPES = ['EPC Certificate', 'ID Document', 'Proof of Income', 'Other'];
 
@@ -116,7 +117,7 @@ export class ApplicationComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.errorMessage.set(
-            err.error?.error?.message ?? 'Could not submit the application, please try again.',
+            extractErrorMessage(err, 'Could not submit the application, please try again.'),
           );
           this.submitting.set(false);
         },
@@ -145,7 +146,7 @@ export class ApplicationComponent {
         this.uploading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        this.uploadError.set(err.error?.error?.message ?? 'Upload failed, please try again.');
+        this.uploadError.set(extractErrorMessage(err, 'Upload failed, please try again.'));
         this.uploading.set(false);
       },
     });

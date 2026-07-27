@@ -49,6 +49,12 @@
   background: var(--color-error);
 }
 
+.online-count {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .shell {
   max-width: 960px;
   margin: 0 auto;

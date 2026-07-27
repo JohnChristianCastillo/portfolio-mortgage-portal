@@ -17,6 +17,12 @@
       [class.error]="backendStatus() === 'unreachable'"
       [title]="'Backend: ' + backendStatus()"
     ></span>
+    <app-tier-badge [tier]="gateway.tier()" />
+    @if (gatewayStatus.status(); as status) {
+      <span class="online-count" title="Sessions currently admitted across the apps behind this gateway">
+        {{ status.active.total }} online
+      </span>
+    }
   </nav>
 </header>
 

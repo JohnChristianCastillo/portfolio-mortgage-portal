@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { SimulateResult, SimulationService } from './simulation.service';
 import { LastSimulationService } from './last-simulation.service';
+import { extractErrorMessage } from '../core/http-error';
 
 @Component({
   selector: 'app-simulation',
@@ -56,7 +57,7 @@ export class SimulationComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(
-          err.error?.error?.message ?? 'Simulation failed, please check your inputs.',
+          extractErrorMessage(err, 'Simulation failed, please check your inputs.'),
         );
         this.submitting.set(false);
       },

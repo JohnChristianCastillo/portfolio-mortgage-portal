@@ -31,6 +31,11 @@ const RECONNECT_MS = 4000;
  */
 @Injectable({ providedIn: 'root' })
 export class GatewayService {
+  /** Whether this page is actually running behind the gateway (production)
+   * rather than local dev - other services (e.g. the /status poller) use
+   * this instead of re-deriving the same document.baseURI check. */
+  readonly enabled = ENABLED;
+
   readonly state = signal<GateState>(ENABLED ? 'connecting' : 'admitted');
   readonly position = signal<number | null>(null);
   readonly sessionId = signal<string | null>(null);
