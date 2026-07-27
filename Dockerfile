@@ -7,7 +7,11 @@ WORKDIR /fe
 COPY frontend/package*.json ./
 RUN npm install --no-audit --no-fund
 COPY frontend/ ./
-RUN npx ng build
+# The gateway proxies /mortgage/* here, stripping the slug before forwarding, so
+# the app itself is served at its own root - but the BROWSER still requests assets
+# from /mortgage/..., which only resolves correctly if the build's <base href>
+# matches. Same fix trading/bartender apply via Vite's `base` option.
+RUN npx ng build --base-href /mortgage/
 
 # --- stage 2: backend serving /api and the built Angular app ---
 FROM python:3.12-slim
