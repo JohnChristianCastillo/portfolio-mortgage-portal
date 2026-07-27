@@ -1,15 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 
 import { AuthComponent } from './auth.component';
 
 describe('AuthComponent', () => {
   let httpMock: HttpTestingController;
+  let router: Router;
 
-  async function setup(mode: 'signup' | 'login') {
+  async function setup(mode: 'signup' | 'login', returnUrl: string | null = null) {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [AuthComponent],
@@ -19,12 +20,18 @@ describe('AuthComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { data: { mode } } },
+          useValue: {
+            snapshot: {
+              data: { mode },
+              queryParamMap: convertToParamMap(returnUrl ? { returnUrl } : {}),
+            },
+          },
         },
       ],
     }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
+    router = TestBed.inject(Router);
     const fixture = TestBed.createComponent(AuthComponent);
     fixture.detectChanges();
     return fixture;
@@ -53,6 +60,36 @@ describe('AuthComponent', () => {
     meReq.flush({ id: 1, email: 'a@example.com' });
 
     expect(fixture.componentInstance.errorMessage()).toBeNull();
+  });
+
+  it('navigates to the returnUrl after a successful signup', async () => {
+    const fixture = await setup('signup', '/apply');
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
+    fixture.componentInstance.form.setValue({ email: 'a@example.com', password: 'supersecret' });
+
+    fixture.componentInstance.submit();
+
+    const req = httpMock.expectOne('/api/auth/signup');
+    req.flush({ access_token: 'token123', token_type: 'bearer' });
+    const meReq = httpMock.expectOne('/api/auth/me');
+    meReq.flush({ id: 1, email: 'a@example.com' });
+
+    expect(navigateSpy).toHaveBeenCalledWith('/apply');
+  });
+
+  it('navigates home when there is no returnUrl', async () => {
+    const fixture = await setup('signup');
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
+    fixture.componentInstance.form.setValue({ email: 'a@example.com', password: 'supersecret' });
+
+    fixture.componentInstance.submit();
+
+    const req = httpMock.expectOne('/api/auth/signup');
+    req.flush({ access_token: 'token123', token_type: 'bearer' });
+    const meReq = httpMock.expectOne('/api/auth/me');
+    meReq.flush({ id: 1, email: 'a@example.com' });
+
+    expect(navigateSpy).toHaveBeenCalledWith('/');
   });
 
   it('shows inline validation errors and does not call the API for invalid input', async () => {

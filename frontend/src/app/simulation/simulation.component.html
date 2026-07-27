@@ -2,63 +2,71 @@
   <h1>Welcome to your home journey!</h1>
   <p class="text-muted">Simulate a mortgage to see what fits your budget.</p>
 
-  <form class="card" [formGroup]="form" (ngSubmit)="submit()">
-    <label class="field">
-      Property value
-      <input type="number" formControlName="property_value" />
-    </label>
+  <div class="layout">
+    <form class="card" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        Property value
+        <input type="number" formControlName="property_value" />
+      </label>
 
-    <label class="field">
-      Down payment
-      <input type="number" formControlName="down_payment" />
-    </label>
+      <label class="field">
+        Down payment
+        <input type="number" formControlName="down_payment" />
+      </label>
 
-    <label class="field">
-      Monthly income
-      <input type="number" formControlName="monthly_income" />
-    </label>
+      <label class="field">
+        Monthly income
+        <input type="number" formControlName="monthly_income" />
+      </label>
 
-    <label class="field">
-      Monthly expenses
-      <input type="number" formControlName="monthly_expenses" />
-    </label>
+      <label class="field">
+        Monthly expenses
+        <input type="number" formControlName="monthly_expenses" />
+      </label>
 
-    <label class="field">
-      Term (years)
-      <input type="number" formControlName="term_years" />
-    </label>
+      <label class="field">
+        Term (years)
+        <input type="number" formControlName="term_years" />
+      </label>
 
-    <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
-      {{ submitting() ? 'Calculating...' : 'Simulate' }}
-    </button>
-  </form>
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+        {{ submitting() ? 'Calculating...' : 'Simulate' }}
+      </button>
+    </form>
 
-  @if (errorMessage()) {
-    <p class="text-error">{{ errorMessage() }}</p>
-  }
+    <div class="result-panel">
+      @if (errorMessage()) {
+        <p class="text-error">{{ errorMessage() }}</p>
+      }
 
-  @if (result(); as r) {
-    <div class="card result">
-      <h3>Your result</h3>
-      <dl>
-        <dt>Loan amount</dt>
-        <dd>{{ r.loan_amount | number: '1.0-2' }}</dd>
-        <dt>Monthly payment</dt>
-        <dd>{{ r.monthly_payment | number: '1.0-2' }}</dd>
-        <dt>Interest rate</dt>
-        <dd>{{ r.interest_rate * 100 | number: '1.2-2' }}%</dd>
-        <dt>Total interest</dt>
-        <dd>{{ r.total_interest | number: '1.0-2' }}</dd>
-        <dt>Total repayment</dt>
-        <dd>{{ r.total_repayment | number: '1.0-2' }}</dd>
-      </dl>
-      <p class="affordability" [class.ok]="r.affordable" [class.warn]="!r.affordable">
-        {{
-          r.affordable
-            ? 'This looks affordable based on your income and expenses.'
-            : 'This may not be affordable based on your income and expenses.'
-        }}
-      </p>
+      @if (result(); as r) {
+        <div class="card result">
+          <h3>Your result</h3>
+          <dl>
+            <dt>Loan amount</dt>
+            <dd>{{ r.loan_amount | number: '1.0-2' }}</dd>
+            <dt>Monthly payment</dt>
+            <dd>{{ r.monthly_payment | number: '1.0-2' }}</dd>
+            <dt>Interest rate</dt>
+            <dd>{{ r.interest_rate * 100 | number: '1.2-2' }}%</dd>
+            <dt>Total interest</dt>
+            <dd>{{ r.total_interest | number: '1.0-2' }}</dd>
+            <dt>Total repayment</dt>
+            <dd>{{ r.total_repayment | number: '1.0-2' }}</dd>
+          </dl>
+          <p class="affordability" [class.ok]="r.affordable" [class.warn]="!r.affordable">
+            {{
+              r.affordable
+                ? 'This looks affordable based on your income and expenses.'
+                : 'This may not be affordable based on your income and expenses.'
+            }}
+          </p>
+        </div>
+      } @else {
+        <div class="card result-placeholder">
+          <p class="text-muted">Your simulation result will appear here.</p>
+        </div>
+      }
     </div>
-  }
+  </div>
 </section>

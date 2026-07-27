@@ -52,7 +52,8 @@ export class AuthComponent {
     request$.subscribe({
       next: () => {
         this.submitting.set(false);
-        this.router.navigateByUrl('/');
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+        this.router.navigateByUrl(returnUrl);
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(
