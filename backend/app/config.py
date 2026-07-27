@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     db_path: str = "data/mortgage.db"
     documents_dir: str = "data/documents"
+    # Built Angular app, set only in the Docker image (see Dockerfile). Unset
+    # in local dev, where `ng serve`'s own proxy serves the frontend instead.
+    static_dir: str | None = None
 
     jwt_secret: str = "change-me-to-a-long-random-string"
     jwt_algorithm: str = "HS256"
