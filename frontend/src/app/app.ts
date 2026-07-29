@@ -1,5 +1,5 @@
 import { Component, OnInit, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
 import { HealthService } from './core/health.service';
 import { AuthService } from './core/auth.service';
@@ -16,6 +16,7 @@ import { TierBadgeComponent } from './shared/tier-badge.component';
 })
 export class App implements OnInit {
   private readonly health = inject(HealthService);
+  private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);
   protected readonly gateway = inject(GatewayService);
   protected readonly gatewayStatus = inject(GatewayStatusService);
@@ -42,5 +43,6 @@ export class App implements OnInit {
 
   logout(): void {
     this.auth.logout();
+    this.router.navigateByUrl('/');
   }
 }
