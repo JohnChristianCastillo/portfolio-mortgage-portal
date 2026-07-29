@@ -6,6 +6,7 @@ from app.repositories.application_repository import ApplicationRepository
 
 DRAFT = "draft"
 SUBMITTED = "submitted"
+WITHDRAWN = "withdrawn"
 
 
 class ApplicationService:
@@ -45,4 +46,16 @@ class ApplicationService:
         if application.status != DRAFT:
             raise ConflictError("application has already been submitted")
         application.status = SUBMITTED
+        return self.applications.save(application)
+
+    def withdraw(self, application_id: int, user: User) -> Application:
+        """Withdrawing is a one-way step, like submitting: only a submitted
+        application can be withdrawn, and a withdrawn one stays withdrawn. A
+        draft is already freely editable, and can simply be left unsubmitted
+        rather than withdrawn.
+        """
+        application = self.get_owned(application_id, user)
+        if application.status != SUBMITTED:
+            raise ConflictError("only a submitted application can be withdrawn")
+        application.status = WITHDRAWN
         return self.applications.save(application)

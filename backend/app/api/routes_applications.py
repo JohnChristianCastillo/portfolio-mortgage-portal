@@ -105,3 +105,14 @@ def submit_application(
     service = ApplicationService(db)
     application = service.submit(application_id, current_user)
     return ApplicationResponse.model_validate(application)
+
+
+@router.post("/{application_id}/withdraw", response_model=ApplicationResponse)
+def withdraw_application(
+    application_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> ApplicationResponse:
+    service = ApplicationService(db)
+    application = service.withdraw(application_id, current_user)
+    return ApplicationResponse.model_validate(application)

@@ -77,6 +77,32 @@ def test_cannot_submit_twice():
     assert response.status_code == 409
 
 
+def test_withdraw_submitted_application():
+    headers = _auth_headers("withdraw@example.com")
+    created = client.post("/api/applications", json={}, headers=headers).json()
+    client.post(f"/api/applications/{created['id']}/submit", headers=headers)
+    response = client.post(f"/api/applications/{created['id']}/withdraw", headers=headers)
+    assert response.status_code == 200
+    assert response.json()["status"] == "withdrawn"
+
+
+def test_cannot_withdraw_a_draft():
+    headers = _auth_headers("withdraw-draft@example.com")
+    created = client.post("/api/applications", json={}, headers=headers).json()
+    response = client.post(f"/api/applications/{created['id']}/withdraw", headers=headers)
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "conflict"
+
+
+def test_cannot_withdraw_twice():
+    headers = _auth_headers("withdraw-twice@example.com")
+    created = client.post("/api/applications", json={}, headers=headers).json()
+    client.post(f"/api/applications/{created['id']}/submit", headers=headers)
+    client.post(f"/api/applications/{created['id']}/withdraw", headers=headers)
+    response = client.post(f"/api/applications/{created['id']}/withdraw", headers=headers)
+    assert response.status_code == 409
+
+
 def test_user_cannot_access_another_users_application():
     owner_headers = _auth_headers("owner@example.com")
     created = client.post("/api/applications", json={}, headers=owner_headers).json()

@@ -1,0 +1,49 @@
+<section class="applications-list">
+  <h1>My applications</h1>
+
+  @if (errorMessage()) {
+    <p class="text-error">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="text-muted">Loading...</p>
+  } @else if (items().length === 0) {
+    <p class="text-muted">You have not submitted an application yet.</p>
+  } @else {
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Property value</th>
+            <th>Loan amount</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of items(); track app.id) {
+            <tr>
+              <td>{{ app.id }}</td>
+              <td><span class="status status-{{ app.status }}">{{ app.status }}</span></td>
+              <td>{{ app.property_value | number: '1.0-2' }}</td>
+              <td>{{ app.loan_amount | number: '1.0-2' }}</td>
+              <td>
+                @if (app.status === 'submitted') {
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    [disabled]="withdrawingId() === app.id"
+                    (click)="withdraw(app.id)"
+                  >
+                    {{ withdrawingId() === app.id ? 'Withdrawing...' : 'Withdraw' }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { SimulationComponent } from './simulation/simulation.component';
 import { AuthComponent } from './auth/auth.component';
 import { ApplicationComponent } from './application/application.component';
+import { ApplicationsListComponent } from './applications-list/applications-list.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -10,4 +11,5 @@ export const routes: Routes = [
   { path: 'signup', component: AuthComponent, data: { mode: 'signup' } },
   { path: 'login', component: AuthComponent, data: { mode: 'login' } },
   { path: 'apply', component: ApplicationComponent, canActivate: [authGuard] },  // check first (by running authGuard) if visitor is signed in or not
+  { path: 'applications', component: ApplicationsListComponent, canActivate: [authGuard] },
 ];

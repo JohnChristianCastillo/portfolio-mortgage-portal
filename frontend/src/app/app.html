@@ -5,6 +5,7 @@
     <a routerLink="/">Simulate</a>
     <a routerLink="/apply">Apply</a>
     @if (auth.currentUser(); as user) {
+      <a routerLink="/applications">My applications</a>
       <span class="current-user">{{ user.email }}</span>
       <button type="button" class="btn btn-outline btn-sm" (click)="logout()">Log out</button>
     } @else {

@@ -14,10 +14,10 @@ export interface ApplicationFields {
 
 export interface Application extends ApplicationFields {
   id: number;
-  status: 'draft' | 'submitted';
+  status: 'draft' | 'submitted' | 'withdrawn';
 }
 
-/** Typed HTTP calls for the mortgage application create/update/submit endpoints. */
+/** Typed HTTP calls for the mortgage application create/update/submit/withdraw endpoints. */
 @Injectable({ providedIn: 'root' })
 export class ApplicationService {
   private readonly http = inject(HttpClient);
@@ -29,5 +29,13 @@ export class ApplicationService {
 
   submit(id: number): Observable<Application> {
     return this.http.post<Application>(`api/applications/${id}/submit`, {});
+  }
+
+  withdraw(id: number): Observable<Application> {
+    return this.http.post<Application>(`api/applications/${id}/withdraw`, {});
+  }
+
+  list(): Observable<Application[]> {
+    return this.http.get<Application[]>('api/applications');
   }
 }
