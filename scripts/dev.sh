@@ -16,13 +16,53 @@ FRONTEND="$HERE/frontend"
 
 echo "== Mortgage Borrower Portal: local dev =="
 
+# Offers to auto-install a missing runtime via the system package manager
+# (apt on Ubuntu, brew on macOS). Always asks first, since this is a
+# system-wide install (apt needs sudo) rather than something scoped to this
+# project. Declining just points at the manual download instead.
+offer_runtime_install() {
+  local name="$1" apt_pkgs="$2" brew_pkg="$3" url="$4"
+  local install_cmd=""
+  if command -v apt-get >/dev/null 2>&1; then
+    install_cmd="sudo apt-get update && sudo apt-get install -y $apt_pkgs"
+  elif command -v brew >/dev/null 2>&1; then
+    install_cmd="brew install $brew_pkg"
+  else
+    echo "$name not found, and no supported package manager (apt/brew) was found to install it automatically."
+    echo "Install it manually from $url"
+    exit 1
+  fi
+  while true; do
+    read -r -p "$name not found. Install it automatically now with: $install_cmd ? [Y/N]: " reply
+    case "$reply" in
+      [Yy]*)
+        eval "$install_cmd"
+        hash -r
+        return 0
+        ;;
+      [Nn]*)
+        echo "Install it manually from $url, then re-run this script."
+        exit 1
+        ;;
+      *) echo "Please answer Y or N." ;;
+    esac
+  done
+}
+
 if ! command -v python3 >/dev/null 2>&1; then
-  echo "Python 3 not found. Install it from https://www.python.org/downloads/ first." >&2
-  exit 1
+  offer_runtime_install "Python 3" "python3 python3-venv python3-pip" "python" "https://www.python.org/downloads/"
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "Python 3 still not found after install. Open a new terminal and try again." >&2
+    exit 1
+  fi
 fi
+
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
-  echo "Node.js/npm not found. Install it from https://nodejs.org/ first." >&2
-  exit 1
+  offer_runtime_install "Node.js/npm" "nodejs npm" "node" "https://nodejs.org/"
+  if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+    echo "Node.js/npm still not found after install. Open a new terminal and try again." >&2
+    exit 1
+  fi
 fi
 
 ANSWER_ALL=false

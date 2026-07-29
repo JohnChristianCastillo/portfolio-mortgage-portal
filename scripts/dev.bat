@@ -18,19 +18,31 @@ echo == Mortgage Borrower Portal: local dev ==
 
 where python >nul 2>nul
 if errorlevel 1 (
-    echo Python not found. Install it from https://www.python.org/downloads/ first.
+    call :offer_runtime_install "Python" "Python.Python.3.12" "https://www.python.org/downloads/"
+    if errorlevel 1 (
+        pause
+        exit /b 1
+    )
+    echo Python was installed ^(or the install was attempted^).
+    echo Close this window and run dev.bat again so the PATH change takes effect.
     pause
     exit /b 1
 )
 where node >nul 2>nul
 if errorlevel 1 (
-    echo Node.js/npm not found. Install it from https://nodejs.org/ first.
+    call :offer_runtime_install "Node.js" "OpenJS.NodeJS.LTS" "https://nodejs.org/"
+    if errorlevel 1 (
+        pause
+        exit /b 1
+    )
+    echo Node.js was installed ^(or the install was attempted^).
+    echo Close this window and run dev.bat again so the PATH change takes effect.
     pause
     exit /b 1
 )
 where npm >nul 2>nul
 if errorlevel 1 (
-    echo Node.js/npm not found. Install it from https://nodejs.org/ first.
+    echo npm not found even though Node.js is. Try reinstalling Node.js from https://nodejs.org/
     pause
     exit /b 1
 )
@@ -88,6 +100,28 @@ pause
 
 endlocal
 goto :eof
+
+REM Offers to auto-install a missing runtime via winget. Always asks first,
+REM since this is a system-wide install that will prompt for admin
+REM permission, not something scoped to this project. Sets errorlevel 0 if
+REM an install was attempted, 1 if declined or winget itself is unavailable
+REM (both cases already print where to install it manually).
+:offer_runtime_install
+where winget >nul 2>nul
+if errorlevel 1 (
+    echo %~1 not found, and winget is not available to install it automatically.
+    echo Install it manually from %~3
+    exit /b 1
+)
+set "RUNTIME_REPLY="
+set /p RUNTIME_REPLY="%~1 not found. Install it automatically via winget? [Y/N]: "
+if /i "%RUNTIME_REPLY:~0,1%"=="Y" (
+    echo -- installing %~1 via winget, you may see an admin permission prompt --
+    call winget install -e --id %~2 --accept-package-agreements --accept-source-agreements
+    exit /b 0
+)
+echo Install it manually from %~3
+exit /b 1
 
 REM Prompts for All/Yes/No (or a/y/n, any case). Sets errorlevel 0 to proceed,
 REM 1 to skip. "All" is remembered in ANSWER_ALL so later calls this run
