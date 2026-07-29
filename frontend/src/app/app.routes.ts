@@ -9,5 +9,5 @@ export const routes: Routes = [
   { path: '', component: SimulationComponent },
   { path: 'signup', component: AuthComponent, data: { mode: 'signup' } },
   { path: 'login', component: AuthComponent, data: { mode: 'login' } },
-  { path: 'apply', component: ApplicationComponent, canActivate: [authGuard] },
+  { path: 'apply', component: ApplicationComponent, canActivate: [authGuard] },  // check first (by running authGuard) if visitor is signed in or not
 ];
