@@ -19,16 +19,19 @@ echo == Mortgage Borrower Portal: local dev ==
 where python >nul 2>nul
 if errorlevel 1 (
     echo Python not found. Install it from https://www.python.org/downloads/ first.
+    pause
     exit /b 1
 )
 where node >nul 2>nul
 if errorlevel 1 (
     echo Node.js/npm not found. Install it from https://nodejs.org/ first.
+    pause
     exit /b 1
 )
 where npm >nul 2>nul
 if errorlevel 1 (
     echo Node.js/npm not found. Install it from https://nodejs.org/ first.
+    pause
     exit /b 1
 )
 
@@ -40,6 +43,7 @@ if not exist ".venv" (
     call :confirm_install "backend dependencies (creates .venv, installs requirements.txt)"
     if errorlevel 1 (
         echo Backend dependencies are required to run the app. Exiting.
+        pause
         exit /b 1
     )
     echo -- creating backend virtual environment --
@@ -67,6 +71,7 @@ if not exist "node_modules" (
     call :confirm_install "frontend dependencies (npm install)"
     if errorlevel 1 (
         echo Frontend dependencies are required to run the app. Exiting.
+        pause
         exit /b 1
     )
     echo -- installing frontend dependencies --
@@ -76,6 +81,10 @@ if not exist "node_modules" (
 echo -- starting frontend on http://localhost:4200 --
 echo ^(close the backend window separately when you are done^)
 call npm start
+
+echo.
+echo -- frontend server stopped --
+pause
 
 endlocal
 goto :eof
