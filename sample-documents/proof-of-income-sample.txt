@@ -1,0 +1,10 @@
+Sample Proof of Income document (fake test data only).
+
+Employer: Fictional Test Employer BV
+Employee: Test Borrower
+Monthly net salary: EUR 3,850.00
+Period: fake sample, not a real payslip.
+
+This file exists only to exercise the document upload feature during manual
+testing of the mortgage borrower portal take-home project. No real personal
+data.
