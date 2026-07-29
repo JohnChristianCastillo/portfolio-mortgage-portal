@@ -72,9 +72,19 @@ def test_admin_can_list_and_unban():
     assert not any(row["ip"] == ip for row in listing_after.json())
 
 
+def test_admin_endpoints_allowed_when_no_gateway_present():
+    """No X-Session-Tier header at all means there is no gateway in front
+    (local dev, standalone Docker), not a real anonymous visitor - so the
+    admin gate must not block it."""
+    assert client.get("/api/admin/banned-ips").status_code == 200
+
+
 def test_admin_endpoints_require_admin_tier():
-    assert client.get("/api/admin/banned-ips").status_code == 403
     assert (
         client.get("/api/admin/banned-ips", headers={"X-Session-Tier": "invited"}).status_code
+        == 403
+    )
+    assert (
+        client.get("/api/admin/banned-ips", headers={"X-Session-Tier": "anonymous"}).status_code
         == 403
     )

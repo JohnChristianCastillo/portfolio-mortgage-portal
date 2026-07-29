@@ -25,18 +25,25 @@ def session_tier(x_session_tier: str | None = Header(default=None)) -> str | Non
     return x_session_tier
 
 
-def require_invited_or_admin(tier: str | None = Depends(session_tier)) -> str:
+def require_invited_or_admin(tier: str | None = Depends(session_tier)) -> str | None:
     """Gate for account creation: only invited/admin visitors may sign up, so an
     open anonymous demo does not turn into free-for-all database growth.
+
+    A tier of None means there is no gateway in front at all (local dev,
+    standalone Docker) rather than a real anonymous visitor, so this gate is a
+    no-op there - this app is meant to behave as always-admitted without a
+    gateway, and only enforce the invite requirement once a real gateway is
+    actually forwarding a tier.
     """
-    if tier not in ("invited", "admin"):
+    if tier is not None and tier not in ("invited", "admin"):
         raise ForbiddenError("sign-up requires an invite")
     return tier
 
 
-def require_admin(tier: str | None = Depends(session_tier)) -> str:
-    """Gate for owner-only endpoints (e.g. managing auto-banned IPs)."""
-    if tier != "admin":
+def require_admin(tier: str | None = Depends(session_tier)) -> str | None:
+    """Gate for owner-only endpoints (e.g. managing auto-banned IPs). Same
+    None-means-no-gateway exception as require_invited_or_admin above."""
+    if tier is not None and tier != "admin":
         raise ForbiddenError("admin only")
     return tier
 

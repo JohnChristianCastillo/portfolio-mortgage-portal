@@ -32,12 +32,15 @@ def test_signup_rejects_duplicate_email():
     assert response.json()["error"]["code"] == "conflict"
 
 
-def test_signup_requires_an_invite():
+def test_signup_allowed_when_no_gateway_present():
+    """No X-Session-Tier header at all means there is no gateway in front
+    (local dev, standalone Docker), not a real anonymous visitor - so the
+    invite gate must not block it."""
     response = client.post(
         "/api/auth/signup", json={"email": "nogate@example.com", "password": "supersecret"}
     )
-    assert response.status_code == 403
-    assert response.json()["error"]["code"] == "forbidden"
+    assert response.status_code == 200
+    assert "access_token" in response.json()
 
 
 def test_signup_rejects_anonymous_tier():
