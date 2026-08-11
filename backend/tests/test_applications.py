@@ -77,6 +77,45 @@ def test_cannot_submit_twice():
     assert response.status_code == 409
 
 
+def test_draft_survives_edits_and_carries_them_into_the_submission():
+    """The frontend autosaves progress by PATCHing a draft repeatedly before
+    submitting it, so the values from the last edit must be the ones that end
+    up on the submitted application."""
+    headers = _auth_headers("autosave@example.com")
+    created = client.post("/api/applications", json={"property_value": 100000}, headers=headers).json()
+
+    client.patch(
+        f"/api/applications/{created['id']}", json={"property_value": 250000}, headers=headers
+    )
+    client.patch(
+        f"/api/applications/{created['id']}", json={"monthly_income": 6100}, headers=headers
+    )
+
+    reloaded = client.get(f"/api/applications/{created['id']}", headers=headers).json()
+    assert reloaded["status"] == "draft"
+    assert reloaded["property_value"] == 250000
+    assert reloaded["monthly_income"] == 6100
+
+    submitted = client.post(f"/api/applications/{created['id']}/submit", headers=headers).json()
+    assert submitted["status"] == "submitted"
+    assert submitted["property_value"] == 250000
+    assert submitted["monthly_income"] == 6100
+
+
+def test_list_exposes_the_draft_to_resume():
+    """The application form finds the draft to resume by listing applications
+    and taking the newest one still in draft."""
+    headers = _auth_headers("resume@example.com")
+    client.post("/api/applications", json={"property_value": 111000}, headers=headers)
+    submitted = client.post("/api/applications", json={}, headers=headers).json()
+    client.post(f"/api/applications/{submitted['id']}/submit", headers=headers)
+
+    listing = client.get("/api/applications", headers=headers).json()
+    drafts = [a for a in listing if a["status"] == "draft"]
+    assert len(drafts) == 1
+    assert drafts[0]["property_value"] == 111000
+
+
 def test_withdraw_submitted_application():
     headers = _auth_headers("withdraw@example.com")
     created = client.post("/api/applications", json={}, headers=headers).json()

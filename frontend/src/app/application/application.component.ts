@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { switchMap } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
 
 import { LastSimulationService } from '../simulation/last-simulation.service';
 import { Application, ApplicationService } from './application.service';
@@ -26,6 +26,10 @@ const STEPS: { key: Step; label: string }[] = [
  * Expenses/Submit, names borrowed from the Loom demo) instead of a routed
  * wizard - the brief explicitly allows "a single multi-step form". Pre-fills
  * from LastSimulationService when the borrower ran a simulation first.
+ *
+ * Progress is autosaved to the backend as a real draft application on every
+ * step change, so a refresh, a crash, or a closed tab does not lose what has
+ * been filled in. On load the most recent draft is resumed automatically.
  */
 @Component({
   selector: 'app-application',
@@ -34,7 +38,7 @@ const STEPS: { key: Step; label: string }[] = [
   templateUrl: './application.component.html',
   styleUrl: './application.component.css',
 })
-export class ApplicationComponent {
+export class ApplicationComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly applications = inject(ApplicationService);
   private readonly lastSimulation = inject(LastSimulationService);
@@ -54,6 +58,14 @@ export class ApplicationComponent {
   readonly submittedApplication = signal<Application | null>(null);
   readonly errorMessage = signal<string | null>(null);
   protected readonly submitting = signal(false);
+
+  /** The persisted draft this form is bound to; null until the first save. */
+  readonly draftId = signal<number | null>(null);
+  readonly resumedDraft = signal(false);
+  readonly loadingDraft = signal(true);
+  readonly saving = signal(false);
+  /** Set when an autosave fails, so the borrower knows progress is not being kept. */
+  readonly saveError = signal<string | null>(null);
 
   private readonly lastResult = this.lastSimulation.lastResult();
 
@@ -77,16 +89,100 @@ export class ApplicationComponent {
     ],
   });
 
+  ngOnInit(): void {
+    // Resume the most recent unsubmitted draft, if there is one. The list
+    // comes back newest-first from the backend, so the first draft in it is
+    // the one to continue.
+    this.applications.list().subscribe({
+      next: (applications) => {
+        const draft = applications.find((application) => application.status === 'draft');
+        if (draft) {
+          this.draftId.set(draft.id);
+          this.resumedDraft.set(true);
+          // A saved draft outranks the simulation pre-fill: it is what the
+          // borrower actually typed, the pre-fill is only a starting guess.
+          this.form.patchValue({
+            property_value: draft.property_value,
+            term_years: draft.term_years,
+            employment_status: draft.employment_status ?? 'employee',
+            monthly_income: draft.monthly_income,
+            monthly_expenses: draft.monthly_expenses,
+          });
+        }
+        this.loadingDraft.set(false);
+      },
+      // Fail open: not being able to look for a draft must not block starting
+      // a fresh application, so this only stops the loading state.
+      error: () => this.loadingDraft.set(false),
+    });
+  }
+
   next(): void {
     if (this.stepIndex() < STEPS.length - 1) {
       this.stepIndex.set(this.stepIndex() + 1);
+      this.persistDraft();
     }
   }
 
   back(): void {
     if (this.stepIndex() > 0) {
       this.stepIndex.set(this.stepIndex() - 1);
+      this.persistDraft();
     }
+  }
+
+  /** Discard the resumed draft and begin a new application from scratch. */
+  startNewApplication(): void {
+    this.draftId.set(null);
+    this.resumedDraft.set(false);
+    this.saveError.set(null);
+    this.stepIndex.set(0);
+    this.form.reset({
+      property_value: this.lastSimulation.lastInputs()?.property_value ?? 300000,
+      term_years: this.lastSimulation.lastInputs()?.term_years ?? 25,
+      employment_status: 'employee',
+      monthly_income: this.lastSimulation.lastInputs()?.monthly_income ?? 5800,
+      monthly_expenses: this.lastSimulation.lastInputs()?.monthly_expenses ?? 500,
+    });
+  }
+
+  /** Fire-and-forget autosave; submitting uses saveDraft() directly instead. */
+  private persistDraft(): void {
+    this.saving.set(true);
+    this.saveDraft().subscribe({
+      next: () => {
+        this.saveError.set(null);
+        this.saving.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saveError.set(
+          extractErrorMessage(err, 'Could not save your progress, please check your connection.'),
+        );
+        this.saving.set(false);
+      },
+    });
+  }
+
+  /**
+   * Creates the draft on first save and updates it thereafter, so the caller
+   * does not have to care which of the two it is.
+   */
+  private saveDraft(): Observable<Application> {
+    const value = this.form.getRawValue();
+    const fields = {
+      property_value: value.property_value!,
+      term_years: value.term_years!,
+      employment_status: value.employment_status,
+      monthly_income: value.monthly_income!,
+      monthly_expenses: value.monthly_expenses!,
+      loan_amount: this.lastResult?.loan_amount ?? value.property_value!,
+      interest_rate: this.lastResult?.interest_rate ?? 0,
+    };
+
+    const id = this.draftId();
+    return id === null
+      ? this.applications.create(fields).pipe(tap((created) => this.draftId.set(created.id)))
+      : this.applications.update(id, fields);
   }
 
   submitApplication(): void {
@@ -98,17 +194,9 @@ export class ApplicationComponent {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const value = this.form.getRawValue();
-    this.applications
-      .create({
-        property_value: value.property_value!,
-        term_years: value.term_years!,
-        employment_status: value.employment_status,
-        monthly_income: value.monthly_income!,
-        monthly_expenses: value.monthly_expenses!,
-        loan_amount: this.lastResult?.loan_amount ?? value.property_value!,
-        interest_rate: this.lastResult?.interest_rate ?? 0,
-      })
+    // Save the latest values first (creating the draft if this form was never
+    // autosaved), then flip that same draft to submitted.
+    this.saveDraft()
       .pipe(switchMap((application) => this.applications.submit(application.id)))
       .subscribe({
         next: (application) => {

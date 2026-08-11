@@ -44,7 +44,27 @@
   </section>
 } @else {
   <section class="application">
-    <h1>Mortgage application</h1>
+    <div class="application-header">
+      <h1>Mortgage application</h1>
+      @if (saving()) {
+        <span class="save-state">Saving...</span>
+      } @else if (draftId()) {
+        <span class="save-state saved">Progress saved</span>
+      }
+    </div>
+
+    @if (resumedDraft()) {
+      <div class="notice">
+        <span>Resumed your saved draft, so you can pick up where you left off.</span>
+        <button type="button" class="btn btn-outline btn-sm" (click)="startNewApplication()">
+          Start a new application
+        </button>
+      </div>
+    }
+
+    @if (saveError()) {
+      <p class="text-error">{{ saveError() }}</p>
+    }
 
     <div class="layout">
       <nav class="steps-nav">

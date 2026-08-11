@@ -5,6 +5,37 @@
   gap: 1rem;
 }
 
+/* Autosave affordances: the header state and the resumed-draft notice. */
+
+.application-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.save-state {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.save-state.saved {
+  color: var(--color-success);
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  font-size: 0.9rem;
+}
+
 .layout {
   display: flex;
   gap: 2rem;

@@ -27,6 +27,10 @@ export class ApplicationService {
     return this.http.post<Application>('api/applications', fields);
   }
 
+  update(id: number, fields: Partial<ApplicationFields>): Observable<Application> {
+    return this.http.patch<Application>(`api/applications/${id}`, fields);
+  }
+
   submit(id: number): Observable<Application> {
     return this.http.post<Application>(`api/applications/${id}/submit`, {});
   }

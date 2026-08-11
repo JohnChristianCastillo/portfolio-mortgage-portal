@@ -15,9 +15,15 @@ mortgage application, and upload supporting documents linked to it.
   growth; login is open to anyone with an existing account.
 - **Application** - a single component with visual step sections (About
   project / Personal details / Income details / Expenses details / Submit),
-  pre-filled from a prior simulation if there is one. Submitting creates the
-  application as a draft and immediately transitions it to submitted; a
-  submitted application can no longer be edited.
+  pre-filled from a prior simulation if there is one. Progress is autosaved
+  to the backend as a real draft on every step change, so a refresh, a closed
+  tab, or a backend outage does not cost the borrower what they already
+  typed; returning to the form resumes the most recent draft automatically.
+  Submitting flips that same draft to submitted, after which it can no
+  longer be edited.
+- **My applications** - a borrower can list their own applications with
+  their status, resume an unfinished draft, and withdraw a submitted one
+  (withdrawing is terminal, and only applies to a submitted application).
 - **Document upload** - pick a document type, upload a file, see it listed
   against the application. Content-type allowlist and a size limit, both
   enforced server-side.
@@ -25,7 +31,7 @@ mortgage application, and upload supporting documents linked to it.
   Cloudflare Tunnel + access gateway (not deployed throwaway on a PaaS): a
   WebSocket admission handshake, a tier badge and a live "N online" count in
   the nav, and admin-only endpoints to review/unban an auto-banned IP.
-- Full test suite: 37 backend (pytest), 34 frontend (vitest).
+- Full test suite: 43 backend (pytest), 46 frontend (vitest).
 - Dockerized as a single image: the Angular build copied into the FastAPI
   image as its static root, one container serving both the API and the SPA.
 
@@ -50,7 +56,11 @@ says so explicitly), so several things it demos were deliberately left out:
   last simulation's inputs/result in memory only (`LastSimulationService`,
   lives in the browser tab, gone on a full reload) so the application form
   can pre-fill from it, matching the demo's "convert the simulation into an
-  application" step without a database table for it.
+  application" step without a database table for it. Note the deliberate
+  asymmetry: an application *draft* is persisted server-side and survives a
+  reload, a *simulation* is not and does not. A simulation is a throwaway
+  calculation anyone can redo in seconds; a half-filled application is work
+  the borrower would resent redoing.
 - **Email verification, real email sending, password reset** - stubbing
   these is explicitly allowed by the brief.
 - **An admin/staff view of submitted applications** - out of scope per the
@@ -68,7 +78,8 @@ says so explicitly), so several things it demos were deliberately left out:
 
 - **Backend**: FastAPI, SQLite via SQLAlchemy. Layered as
   `api/` (routes + Pydantic schemas) -> `services/` (business rules: the
-  draft/submitted state machine, ownership checks, document validation, the
+  draft/submitted/withdrawn state machine, ownership checks, document
+  validation, the
   simulate abuse guard) -> `repositories/` (plain CRUD) -> `domain/` (ORM
   models + the amortization calculator). Object-oriented on purpose for this
   project - classes/interfaces at each of those layers - as a deliberate
@@ -139,9 +150,15 @@ Frontend tests: `cd frontend && npx ng test --watch=false`.
 ## Deliberate trade-offs from the time cap
 
 - The application "multi-step form" is one component with step sections and
-  in-memory navigation state, not a routed wizard with per-step persistence.
-  Submitting does create-then-submit in one action rather than exposing a
-  separate "save draft, come back later" flow.
+  in-memory navigation state, not a routed wizard: which step you are on is
+  not itself persisted or reflected in the URL. The form's *data* is
+  persisted (autosaved as a draft on every step change, resumed on return),
+  so returning to it restores the answers but always reopens at the first
+  step.
+- Autosave fires on step navigation rather than debounced on every
+  keystroke. A step boundary is a natural save point and keeps request
+  volume low; the cost is that edits made without leaving a step are not
+  yet saved.
 - Document validation is allowlist + size limit only (see above).
 - The simulate abuse guard's burst window is in-memory, not persisted - it
   only has to catch a rapid spam burst, so it resets on restart; the ban
